@@ -30,34 +30,6 @@ class Post(BaseModel):
     ratings: Optional[int] = None
 
 
-my_posts = [
-    {
-        "title": "My first post 1",
-        "content": "Content of post 1",
-        "id": 1
-    },
-    {
-        "title": "My first post 2",
-        "content": "Content of post 2",
-        "id": 2
-    }
-]
-
-
-def find_post_by_id(id: int):
-    for post in my_posts:
-        if post.get("id") == id:
-            return post
-    return None
-
-
-def find_post_index_by_id(id: int):
-    for index, post in enumerate(my_posts):
-        if post.get("id") == id:
-            return index
-    return None
-
-
 @app.get("/")
 def root():
     return {"message": "Welcome to my api"}
@@ -72,7 +44,8 @@ def get_posts():
 
 @app.get("/posts/latest")
 def get_latest_post():
-    post = my_posts[-1]
+    cur.execute("""SELECT * FROM posts ORDER BY pid DESC LIMIT 1""")
+    post = cur.fetchone()
     return {"data": post}
 
 
