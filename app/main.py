@@ -1,26 +1,19 @@
 import time
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Response, status
+from fastapi import FastAPI, HTTPException, Response, status, Depends
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+from sqlalchemy.orm import Session
+from app import models
+from app.database import engine, get_db
+
 app = FastAPI()
 
-while True:
-    try:
-        conn = psycopg2.connect(
-            host="localhost", database="fastapi", user="postgres", password="password123",
-            cursor_factory=RealDictCursor)
-        cur = conn.cursor()
-        print("Connected to database")
-        break
-
-    except Exception as e:
-        print("Error while connecting to database", e)
-        time.sleep(2)
+models.Base.metadata.create_all(bind=engine)
 
 
 class Post(BaseModel):
@@ -36,9 +29,8 @@ def root():
 
 
 @app.get("/posts")
-def get_posts():
-    cur.execute("""SELECT * FROM posts""")
-    posts = cur.fetchall()
+def get_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
     return {"data": posts}
 
 
