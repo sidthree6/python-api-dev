@@ -2,24 +2,17 @@ import time
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Response, status, Depends
 from fastapi.params import Body
-from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from sqlalchemy.orm import Session
-from app import models
+from app import models, schemas
 from app.database import engine, get_db
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
-
-
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
 
 
 @app.get("/")
@@ -40,7 +33,7 @@ def get_latest_post(db: Session = Depends(get_db)):
 
 
 @app.post("/posts")
-def create_post(post: Post, db: Session = Depends(get_db)):
+def create_post(post: schemas.Post, db: Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
@@ -69,7 +62,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 
 @ app.put("/posts/{id}")
-def update_post(id: int, post: Post, db: Session = Depends(get_db)):
+def update_post(id: int, post: schemas.Post, db: Session = Depends(get_db)):
     updated_post = db.query(models.Post).filter(models.Post.pid == id)
     if updated_post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
