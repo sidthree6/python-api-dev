@@ -33,7 +33,7 @@ def get_latest_post(db: Session = Depends(get_db)):
 
 
 @app.post("/posts")
-def create_post(post: schemas.Post, db: Session = Depends(get_db)):
+def create_post(post: schemas.CreatePost, db: Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
@@ -62,7 +62,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 
 @ app.put("/posts/{id}")
-def update_post(id: int, post: schemas.Post, db: Session = Depends(get_db)):
+def update_post(id: int, post: schemas.CreatePost, db: Session = Depends(get_db)):
     updated_post = db.query(models.Post).filter(models.Post.pid == id)
     if updated_post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
