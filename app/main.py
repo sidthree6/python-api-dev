@@ -74,4 +74,9 @@ def update_post(id: int, post: schemas.CreatePost, db: Session = Depends(get_db)
 
 @app.post("/users", status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
-    pass
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
