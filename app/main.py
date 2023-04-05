@@ -70,3 +70,8 @@ def update_post(id: int, post: schemas.CreatePost, db: Session = Depends(get_db)
     updated_post.update(post.dict(), synchronize_session=False)
     db.commit()
     return updated_post.first()
+
+
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
+    pass
